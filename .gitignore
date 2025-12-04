@@ -4,7 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 !**/src/main/resources/static/platformem2po-firebase-adminsdk-fbsvc-5af608b8e9.json
-
+src/main/resources/static/platformem2po-firebase-adminsdk-fbsvc-5af608b8e9.json
 ### STS ###
 .apt_generated
 .classpath
