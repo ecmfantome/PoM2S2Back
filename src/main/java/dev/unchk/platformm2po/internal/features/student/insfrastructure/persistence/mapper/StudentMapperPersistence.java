@@ -12,4 +12,12 @@ public class StudentMapperPersistence {
                 .anneeEntre(student.anneeEntre())
                 .build();
     }
+
+    //----------Mapper to entity
+    public static Student toEntityStudent(StudentJpa studentJpa) {
+        return Student.builder()
+                .matricule(studentJpa.getMatricule())
+                .anneeEntre(studentJpa.getAnneeEntre())
+                .build();
+    }
 }

@@ -9,6 +9,10 @@ import dev.unchk.platformm2po.internal.features.student.presentation.exceptions.
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+import static dev.unchk.platformm2po.internal.features.student.insfrastructure.persistence.mapper.StudentMapperPersistence.toEntityStudent;
+
 
 @AllArgsConstructor
 @Service
@@ -24,6 +28,13 @@ public class StudentRepositoryImpV1 implements StudentRepository {
         StudentJpa saved = studentRepositoryJpa.save(studentJpa);
         //-----Response
         return saved.getId();
+    }
+
+    @Override
+    public Student findStudentById(String studentId) {
+        Optional<StudentJpa> studentJpa = studentRepositoryJpa.findById(studentId);
+        if (studentJpa.isEmpty()) throw new StudentNotFoundException();
+        return toEntityStudent(studentJpa.get());
     }
 
     @Override

@@ -13,4 +13,13 @@ public class TeacherMapperPersistence {
                 .speciality(teacher.speciality())
                 .build();
     }
+
+    //----------Mapper to entity
+    public static Teacher toEntityTeacher(TeacherJpa teacherJpa) {
+        return Teacher.builder()
+                .registration_number(teacherJpa.getRegistration_number())
+                .department(teacherJpa.getDepartment())
+                .speciality(teacherJpa.getSpeciality())
+                .build();
+    }
 }

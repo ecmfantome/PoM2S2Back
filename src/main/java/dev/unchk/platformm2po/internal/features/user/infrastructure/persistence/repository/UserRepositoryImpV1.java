@@ -9,6 +9,7 @@ import dev.unchk.platformm2po.internal.features.user.domain.entities.User;
 import dev.unchk.platformm2po.internal.features.user.domain.repository.UserRepository;
 import dev.unchk.platformm2po.internal.features.user.infrastructure.persistence.entities.UserFirebase;
 import dev.unchk.platformm2po.internal.features.user.infrastructure.persistence.mapper.UserMapperInfrastructure;
+import dev.unchk.platformm2po.internal.features.user.infrastructure.persistence.service.UserServicePersistence;
 import dev.unchk.platformm2po.internal.features.user.presentation.exceptions.CustomFirebaseAuthException;
 import dev.unchk.platformm2po.internal.features.user.presentation.exceptions.login.LoginErrorHandlerFilter;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static dev.unchk.platformm2po.internal.features.user.infrastructure.persistence.mapper.UserMapperInfrastructure.mapToUserFirebaseWithNullValues;
+import static dev.unchk.platformm2po.internal.features.user.infrastructure.persistence.service.UserServicePersistence.*;
 import static dev.unchk.platformm2po.internal.shared.constant.Constants.*;
 
 @AllArgsConstructor
@@ -27,9 +29,11 @@ import static dev.unchk.platformm2po.internal.shared.constant.Constants.*;
 public class UserRepositoryImpV1 implements UserRepository {
     private static final String FIREBASE_AUTH_URL = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAr8f-YU5wx10kYk6Qq3vZ-zMisE6FIPNI";
     private final LoginErrorHandlerFilter loginErrorHandlerFilter;
+    private final UserServicePersistence userServicePersistence;
 
     @Override
-    public Mono<TokenFirebaseResponse> signIn(UserRequestSignIn userRequestSignIn) {
+    public Mono<Map<String, Object>> signIn(UserRequestSignIn userRequestSignIn) {
+        Map<String, Object> signInParams = new HashMap<>();
         WebClient webClientFrb = WebClient.builder()
                 .baseUrl(FIREBASE_AUTH_URL) // Base URL Firebase
                 .filter(loginErrorHandlerFilter.handlerStatusErrorFilter())
@@ -38,12 +42,18 @@ public class UserRepositoryImpV1 implements UserRepository {
         return webClientFrb.post()
                 .bodyValue(userRequestSignIn)
                 .retrieve()
-                .bodyToMono(TokenFirebaseResponse.class);
-//                .onErrorMap(WebClientResponseException.class, e -> {
-//                    System.out.println("body == " + body);
-//                    return new IdTokenFirebaseException();
-//                });
-///
+                .bodyToMono(TokenFirebaseResponse.class)
+                .flatMap(tokenFirebaseResponse -> {
+                    Map<String, Object> claims = getClaimsUserFirebaseByUid(tokenFirebaseResponse.localId());
+                    String role = (String) claims.get(CLAIM_ROLE);
+                    String userId = (String) claims.get(CLAIM_USER_ID);
+                    Map<String, Object> profile = userServicePersistence.getProfileByRole(role, userId);
+                    signInParams.put("token", tokenFirebaseResponse);
+                    signInParams.put("claims", claims);
+                    signInParams.put("role", profile.get("role"));
+                    signInParams.put("profile", profile.get("profile"));
+                    return Mono.just(signInParams);
+                });
 
     }
 
@@ -79,7 +89,7 @@ public class UserRepositoryImpV1 implements UserRepository {
             String userId = (String) allClaims.get(CLAIM_USER_ID);
             if (!user.isEmpty()) {//Si rien dans user alors j'update pas les claims
                 UserFirebase userFirebase = mapToUserFirebaseWithNullValues(user);
-                Map<String, Object> updateClaims = updateClaimsMap(allClaims,userFirebase);
+                Map<String, Object> updateClaims = updateClaimsMap(allClaims, userFirebase);
                 UserRecord.UpdateRequest updateRequest = new UserRecord.UpdateRequest(userFirebase.userId)
                         .setCustomClaims(updateClaims);
                 auth.updateUser(updateRequest);
@@ -109,61 +119,9 @@ public class UserRepositoryImpV1 implements UserRepository {
         updateUserFirebase(uuid, true);
     }
 
-
     @Override
     public void unLockUserFirebase(String uuid) {
         updateUserFirebase(uuid, false);
     }
 
-    //
-    private void updateUserFirebase(String uuid, boolean isLock) {
-        try {
-            UserRecord.UpdateRequest updateRequest = new UserRecord.UpdateRequest(uuid)
-                    .setDisabled(isLock);
-            FirebaseAuth auth = FirebaseAuth.getInstance();
-            auth.updateUser(updateRequest);
-        } catch (FirebaseAuthException e) {
-            System.out.println("[updateUserFirebase]: " + e.getMessage());
-            throw new CustomFirebaseAuthException(e.getMessage());
-        }
-    }
-
-
-    private static Map<String, Object> buildClaimsMap(UserFirebase userFirebase) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(CLAIM_USER_ID, userFirebase.userId);
-        claims.put(CLAIM_NAME, userFirebase.name);
-        claims.put(CLAIM_LASTNAME, userFirebase.lastName);
-        claims.put(CLAIM_MAIL, userFirebase.email);
-        claims.put(CLAIM_ROLE, userFirebase.role);
-        claims.put(CLAIM_PHONE, userFirebase.phone);
-        claims.put(CLAIM_IS_ACTIVE, userFirebase.isActive);
-        return claims;
-    }
-
-    private static Map<String, Object> updateClaimsMap(Map<String, Object> allClaims, UserFirebase userFirebase) {
-        Map<String, Object> claims = new HashMap<>();
-        if (userFirebase.name != null) {
-            claims.put(CLAIM_NAME, userFirebase.name);
-        }
-        if (userFirebase.lastName != null) {
-            claims.put(CLAIM_LASTNAME, userFirebase.lastName);
-        }
-        if (userFirebase.email != null) {
-            claims.put(CLAIM_MAIL, userFirebase.email);
-        }
-        if (userFirebase.role != null) {
-            claims.put(CLAIM_ROLE, userFirebase.role);
-        }
-        if (userFirebase.phone != null) {
-            claims.put(CLAIM_PHONE, userFirebase.phone);
-        }
-        if (userFirebase.isActive != null) {
-            claims.put(CLAIM_IS_ACTIVE, userFirebase.isActive);
-        }
-        //----ECM le allClaims de firebase est en readOnly....
-        Map<String, Object> allClaimsUpdate = new HashMap<>(allClaims);
-        allClaimsUpdate.putAll(claims);
-        return allClaimsUpdate;
-    }
 }
