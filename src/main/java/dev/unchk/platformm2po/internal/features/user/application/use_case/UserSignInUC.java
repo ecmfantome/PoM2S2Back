@@ -13,8 +13,8 @@ import reactor.core.publisher.Mono;
 public class UserSignInUC {
     private final UserRepository userRepository;
 
-    public Mono<TokenFirebaseResponse> execute(Mono<UserRequestSignIn> userRequestSignInMono) {
-        return userRequestSignInMono.flatMap(userRepository::signIn);
+    public Mono<TokenFirebaseResponse> execute(UserRequestSignIn userRequestSignIn) {
+        return userRepository.signIn(userRequestSignIn);
     }
 
 }

@@ -1,5 +1,6 @@
 package dev.unchk.platformm2po.internal.config;
 
+import dev.unchk.platformm2po.internal.config.firebase.FirebaseJwtDecoder;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +27,7 @@ public class SecurityConfig {
                 .oauth2ResourceServer(OA2RS -> OA2RS.jwt(jwt -> jwt.jwtDecoder(jwtDecoder)))
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/actuator/**", "api/v1/user/sign_in").permitAll()
-                        .pathMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .pathMatchers("/webjars/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .cors(corsSpec -> corsSpec.configurationSource(corsConfigurationSource()))
