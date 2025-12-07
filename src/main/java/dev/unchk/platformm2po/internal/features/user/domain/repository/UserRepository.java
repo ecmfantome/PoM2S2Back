@@ -1,12 +1,13 @@
 package dev.unchk.platformm2po.internal.features.user.domain.repository;
 
-import dev.unchk.platformm2po.internal.features.user.application.dto.TokenFirebaseResponse;
 import dev.unchk.platformm2po.internal.features.user.application.dto.UserRequestSignIn;
 import dev.unchk.platformm2po.internal.features.user.domain.entities.User;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 public interface UserRepository {
-    Mono<TokenFirebaseResponse> signIn(UserRequestSignIn userRequestSignIn);
+    Mono<Map<String, Object>> signIn(UserRequestSignIn userRequestSignIn);
 
     void createUserFirebase(User user);
 

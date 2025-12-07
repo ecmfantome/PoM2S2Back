@@ -11,4 +11,11 @@ public class AdminMapperPersistence {
                 .post(admin.post())
                 .build();
     }
+
+    //----------Mapper to entity jpa
+    public static Admin toEntityAdmin(AdminJpa adminJpa) {
+        return Admin.builder()
+                .post(adminJpa.getPost())
+                .build();
+    }
 }

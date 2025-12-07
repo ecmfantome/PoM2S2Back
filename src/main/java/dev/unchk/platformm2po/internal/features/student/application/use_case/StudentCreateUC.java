@@ -4,7 +4,6 @@ import dev.unchk.platformm2po.internal.features.student.application.dto.StudentR
 import dev.unchk.platformm2po.internal.features.student.application.mapper.StudentMapper;
 import dev.unchk.platformm2po.internal.features.student.domain.entities.Student;
 import dev.unchk.platformm2po.internal.features.student.domain.repository.StudentRepository;
-import dev.unchk.platformm2po.internal.features.user.domain.value_objects.RoleUser;
 import dev.unchk.platformm2po.internal.shared.application.dto.UserRequestSignUp;
 import dev.unchk.platformm2po.internal.shared.application.use_case.IUserSignUpUC;
 import lombok.AllArgsConstructor;

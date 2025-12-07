@@ -2,6 +2,7 @@ package dev.unchk.platformm2po.internal.features.user.presentation.controller;
 
 
 import dev.unchk.platformm2po.internal.features.user.application.dto.TokenFirebaseResponse;
+import dev.unchk.platformm2po.internal.features.user.application.dto.UserLoginResponse;
 import dev.unchk.platformm2po.internal.features.user.application.dto.UserRequestSignIn;
 import dev.unchk.platformm2po.internal.features.user.application.use_case.UserLockedUC;
 import dev.unchk.platformm2po.internal.features.user.application.use_case.UserSignInUC;
@@ -24,7 +25,7 @@ public class UserController {
 
     @PostMapping("/sign_in")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<TokenFirebaseResponse> signIn(@Valid @RequestBody Mono<UserRequestSignIn> userRequestSignInMono) {
+    public Mono<UserLoginResponse> signIn(@Valid @RequestBody Mono<UserRequestSignIn> userRequestSignInMono) {
         return userRequestSignInMono.flatMap(
                 userSignInUC::execute
         );

@@ -8,7 +8,10 @@ import dev.unchk.platformm2po.internal.features.admin.persistence.mapper.AdminMa
 import dev.unchk.platformm2po.internal.features.admin.presentation.exceptions.AdminNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
+
+import static dev.unchk.platformm2po.internal.features.admin.persistence.mapper.AdminMapperPersistence.toEntityAdmin;
 
 
 @AllArgsConstructor
@@ -25,6 +28,13 @@ public class AdminRepositoryImpV1 implements AdminRepository {
         AdminJpa saved = adminRepositoryJpa.save(adminJpa);
         //-----Response
         return saved.getId();
+    }
+
+    @Override
+    public Admin findAdminById(String adminId) {
+        Optional<AdminJpa> adminJpaFind = adminRepositoryJpa.findById(adminId);
+        if (adminJpaFind.isEmpty()) throw new AdminNotFoundException();
+        return toEntityAdmin(adminJpaFind.get());
     }
 
     @Override
