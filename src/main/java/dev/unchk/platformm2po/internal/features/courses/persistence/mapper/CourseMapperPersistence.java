@@ -4,11 +4,19 @@ import dev.unchk.platformm2po.internal.features.admin.infrastructure.persistence
 import dev.unchk.platformm2po.internal.features.courses.persistence.entities.CourseJpa;
 import dev.unchk.platformm2po.internal.features.courses.domain.entities.Course;
 import dev.unchk.platformm2po.internal.features.module.infrastructure.persistence.entities.ModuleJpa;
+import dev.unchk.platformm2po.internal.features.student.domain.entities.Student;
+import dev.unchk.platformm2po.internal.features.student.insfrastructure.persistence.entities.StudentJpa;
+import dev.unchk.platformm2po.internal.features.teacher.domain.entities.Teacher;
+import dev.unchk.platformm2po.internal.features.teacher.infrastructure.persistence.entities.TeacherJpa;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static dev.unchk.platformm2po.internal.features.admin.infrastructure.persistence.mapper.AdminMapperPersistence.toEntityAdmin;
 import static dev.unchk.platformm2po.internal.features.module.infrastructure.persistence.mapper.ModuleMapperPersistence.toModule;
+import static dev.unchk.platformm2po.internal.features.student.insfrastructure.persistence.mapper.StudentMapperPersistence.toEntityStudent;
+import static dev.unchk.platformm2po.internal.features.teacher.infrastructure.persistence.mapper.TeacherMapperPersistence.toEntityTeacher;
 
 public class CourseMapperPersistence {
     //----------Mapper to entity jpa
@@ -48,6 +56,20 @@ public class CourseMapperPersistence {
                 .updatedAt(courseJpa.getUpdatedAt())
                 .credit(courseJpa.getCredits())
                 .build();
+        if (!courseJpa.getStudents().stream().toList().isEmpty()) {
+             Set<Student> students = new HashSet<>();
+            for (StudentJpa studentJpa : courseJpa.getStudents()) {
+                students.add(toEntityStudent(studentJpa));
+            }
+            course.setStudents(students);
+        }
+        if (!courseJpa.getTeachers().stream().toList().isEmpty()) {
+            Set<Teacher> teachers = new HashSet<>();
+            for (TeacherJpa teacherJpa : courseJpa.getTeachers()) {
+                teachers.add(toEntityTeacher(teacherJpa));
+            }
+            course.setTeachers(teachers);
+        }
         if (courseJpa.getModuleJpa() != null && courseJpa.getModuleJpa().getId() != null) {
             course.setModule(toModule(courseJpa.getModuleJpa()));
         }
