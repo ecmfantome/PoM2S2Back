@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class CourseExceptionHandler {
 
     @ExceptionHandler(CourseNotFoundException.class)
-    public ResponseEntity<ErrorResponseApi> handleUserRoleException(CourseNotFoundException ex) {
+    public ResponseEntity<ErrorResponseApi> handleCourseExceptionHandler(CourseNotFoundException ex) {
         ErrorResponseApi errorResponseApi = ErrorResponseApi.builder().error(ex.getMessage()).build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponseApi);
     }

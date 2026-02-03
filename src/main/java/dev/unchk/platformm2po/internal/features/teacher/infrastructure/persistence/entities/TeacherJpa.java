@@ -1,6 +1,7 @@
 package dev.unchk.platformm2po.internal.features.teacher.infrastructure.persistence.entities;
 
 
+import dev.unchk.platformm2po.internal.features.courses.persistence.entities.CourseJpa;
 import dev.unchk.platformm2po.internal.features.module.infrastructure.persistence.entities.ModuleJpa;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +11,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,6 +35,13 @@ public class TeacherJpa {
     //Relations
     @OneToMany(mappedBy = "responsible")
     private List<ModuleJpa> modules = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "teacher_course",
+            joinColumns = @JoinColumn(name = "teacher_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private Set<CourseJpa> courses = new HashSet<>();
 
     //Champs System
     @CreatedDate

@@ -50,6 +50,8 @@ public class CourseMapper {
                 .createdBy(request.getCreatedBy())
                 .createdAt(request.getCreatedAt())
                 .updatedAt(request.getUpdatedAt())
+                .students(request.getStudents())
+                .teachers(request.getTeachers())
                 .build();
     }
 
